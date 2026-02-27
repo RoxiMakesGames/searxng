@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: searxng
+  namespace: searxng
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: searxng
+      version: "1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: searxng
+        namespace: flux-system
+  values:
+    searxng:
+      config:
+        use_default_settings: true
+        server:
+          secret_key: ""  # Override via Secret
+          base_url: https://search.sovereign.local
+    persistence:
+      enabled: true
+      size: 2Gi
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: search.sovereign.local
+          paths:
+            - path: /
+              pathType: Prefix
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
